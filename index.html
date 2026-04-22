@@ -174,7 +174,6 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
         <div class="section-header">
           <div class="section-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
           <div class="section-title-wrap">
-            <div class="section-eyebrow">Section 1</div>
             <div class="section-title">Delivery Quality</div>
           </div>
         </div>
@@ -184,7 +183,6 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
         <div class="section-header">
           <div class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
           <div class="section-title-wrap">
-            <div class="section-eyebrow">SPH</div>
             <div class="section-title">Delivery Speed</div>
           </div>
         </div>
@@ -198,7 +196,6 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
     <div class="section-header">
       <div class="section-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
       <div class="section-title-wrap">
-        <div class="section-eyebrow">Section 2</div>
         <div class="section-title">Driving Safety</div>
       </div>
       <div class="section-line"></div>
@@ -212,7 +209,6 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
         <div class="section-header">
           <div class="section-icon"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
           <div class="section-title-wrap">
-            <div class="section-eyebrow">Section 3</div>
             <div class="section-title">DSB</div>
           </div>
         </div>
@@ -222,7 +218,6 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
         <div class="section-header">
           <div class="section-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
           <div class="section-title-wrap">
-            <div class="section-eyebrow">Section 4</div>
             <div class="section-title">CDF</div>
           </div>
         </div>
@@ -235,7 +230,6 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
     <div class="section-header">
       <div class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
       <div class="section-title-wrap">
-        <div class="section-eyebrow">Coaching</div>
         <div class="section-title">Focus Area & Guidance</div>
       </div>
       <div class="section-line"></div>
@@ -252,7 +246,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 </footer>
 
 <script>
-var API_URL = 'https://script.google.com/macros/s/AKfycbxb9ZQAxdZ9JeDi60V4Qwkhdn4gj3DTKzbabDfSH-0wUUcEKSIR3m_liDjErk4qf-X59Q/exec';
+var API_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
 document.addEventListener('DOMContentLoaded', function() {
   var params = new URLSearchParams(window.location.search);
@@ -324,7 +318,7 @@ function render(d) {
     { name:'Distractions Rate', val:d.distractions, fmt:'dec', zero:true },
     { name:'Following Distance Rate', val:d.following, fmt:'dec', zero:true },
     { name:'Sign / Signal Violations Rate', val:d.signViolations, fmt:'dec', zero:true },
-  ]);
+  ], true);
   buildList('dsbList', [
     { name:'Simultaneous Deliveries', val:d.simultaneous, fmt:'dec', zero:true },
     { name:'Delivered > 50m', val:d.delivered50m, fmt:'dec', zero:true },
@@ -332,7 +326,7 @@ function render(d) {
     { name:'Incorrect Scan (Unattended)', val:d.incorrectUnattended, fmt:'dec', zero:true },
     { name:'No POD on Delivery', val:d.noPod, fmt:'dec', zero:true },
     { name:'Scanned Not Delivered', val:d.scannedNotDelivered, fmt:'dec', zero:true },
-  ]);
+  ], true);
   buildList('cdfList', [
     { name:'Mishandled Package', val:d.mishandled, fmt:'dec', zero:true },
     { name:'Unprofessional', val:d.unprofessional, fmt:'dec', zero:true },
@@ -340,13 +334,32 @@ function render(d) {
     { name:'Wrong Address', val:d.wrongAddress, fmt:'dec', zero:true },
     { name:'Never Received Delivery', val:d.neverReceived, fmt:'dec', zero:true },
     { name:'Received Wrong Item', val:d.wrongItem, fmt:'dec', zero:true },
-  ]);
+  ], true);
   renderFocus(d);
 }
 
-function buildList(id, items) {
+function buildList(id, items, zeroFilter) {
   var el = document.getElementById(id);
-  el.innerHTML = items.map(function(item) {
+  var filtered = items;
+  if (zeroFilter) {
+    filtered = items.filter(function(item) {
+      if (item.val == null || item.val === '') return false;
+      var n = parseFloat(item.val);
+      return !isNaN(n) && n > 0;
+    });
+    if (!filtered.length) {
+      el.innerHTML =
+        '<div class="metric-row" style="gap:14px;">'+
+          '<div style="font-size:22px;line-height:1;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--green-bg);border:1px solid var(--green-bd);border-radius:4px;color:var(--green);flex-shrink:0;"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>'+
+          '<div>'+
+            '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:17px;letter-spacing:.05em;color:var(--green);">No Issues Recorded</div>'+
+            '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:rgba(62,207,122,0.6);letter-spacing:.08em;margin-top:2px;">Great job — keep it up!</div>'+
+          '</div>'+
+        '</div>';
+      return;
+    }
+  }
+  el.innerHTML = filtered.map(function(item) {
     var val = item.val;
     var display = '—';
     var cls = 'neutral';
@@ -374,31 +387,52 @@ function buildList(id, items) {
   }).join('');
 }
 
+var FOCUS_ICONS = {
+  sph:      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  dcr:      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>',
+  pod:      '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+  seatbelt: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  speeding: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
+  distract: '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
+  trophy:   '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 21 12 17 16 21"/><line x1="12" y1="17" x2="12" y2="11"/><path d="M7 4H4a2 2 0 0 0-2 2v2a4 4 0 0 0 4 4h.1M17 4h3a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4h-.1M7 4h10v6a5 5 0 0 1-10 0V4z"/></svg>',
+};
+
+function iconWrap(svg) {
+  return '<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:3px;flex-shrink:0;color:var(--gold);">'+svg+'</span>';
+}
+
 function renderFocus(d) {
   var areas = [];
   if (d.sph != null && parseFloat(d.sph) < 20)
-    areas.push({icon:'🏃',title:'Stops Per Hour',text:'The minimum requirement is 20 stops per hour. Organize your next bag in the cabin, minimize time at each stop, and move purposefully between the van and delivery point.'});
+    areas.push({icon:FOCUS_ICONS.sph,title:'Stops Per Hour',text:'The minimum requirement is 20 stops per hour. Organize your next bag in the cabin, minimize time at each stop, and move purposefully between the van and delivery point.'});
   if (d.dcr != null && (parseFloat(d.dcr)>1?parseFloat(d.dcr):parseFloat(d.dcr)*100) < 99)
-    areas.push({icon:'📦',title:'Delivery Completion Rate',text:'Your DCR is below 99%. Every undelivered package affects our station score. Follow the correct RTS process and communicate with dispatch if you cannot complete a delivery.'});
+    areas.push({icon:FOCUS_ICONS.dcr,title:'Delivery Completion Rate',text:'Your DCR is below 99%. Every undelivered package affects our station score. Follow the correct RTS process and communicate with dispatch if you cannot complete a delivery.'});
   if (d.pod != null && (parseFloat(d.pod)>1?parseFloat(d.pod):parseFloat(d.pod)*100) < 99)
-    areas.push({icon:'📸',title:'Photo on Delivery',text:'Your POD rate is below 99%. A photo must be taken at every delivery. Ensure it clearly shows the package at the delivery location before moving on.'});
+    areas.push({icon:FOCUS_ICONS.pod,title:'Photo on Delivery',text:'Your POD rate is below 99%. A photo must be taken at every delivery. Ensure it clearly shows the package at the delivery location before moving on.'});
   if (d.seatbelt != null && parseFloat(d.seatbelt) > 0)
-    areas.push({icon:'🔒',title:'Seatbelt Violations',text:'Seatbelt violations were recorded. Your seatbelt must be worn at all times while the vehicle is in motion, including when pulling in and out of driveways.'});
+    areas.push({icon:FOCUS_ICONS.seatbelt,title:'Seatbelt Violations',text:'Seatbelt violations were recorded. Your seatbelt must be worn at all times while the vehicle is in motion, including when pulling in and out of driveways.'});
   if (d.speeding != null && parseFloat(d.speeding) > 0)
-    areas.push({icon:'⚡',title:'Speeding Events',text:'Speeding events were recorded on your route. Always observe posted speed limits. Speeding puts you, customers, and the public at risk.'});
+    areas.push({icon:FOCUS_ICONS.speeding,title:'Speeding Events',text:'Speeding events were recorded on your route. Always observe posted speed limits. Speeding puts you, customers, and the public at risk.'});
   if (d.distractions != null && parseFloat(d.distractions) > 0)
-    areas.push({icon:'📱',title:'Distracted Driving',text:'Distraction events were recorded. Keep your eyes on the road at all times. Phone use while driving is prohibited.'});
+    areas.push({icon:FOCUS_ICONS.distract,title:'Distracted Driving',text:'Distraction events were recorded. Keep your eyes on the road at all times. Phone use while driving is prohibited.'});
 
   var fa = document.getElementById('focusArea');
   var fc = document.getElementById('focusCards');
   fa.style.display = 'block';
   if (!areas.length) {
-    fc.innerHTML = '<div class="all-good"><div class="all-good-icon">🏆</div><div><div class="all-good-title">Outstanding Performance</div><div class="all-good-sub">No coaching areas identified — keep up the great work!</div></div></div>';
+    fc.innerHTML =
+      '<div class="all-good">'+
+        '<div class="all-good-icon" style="color:var(--green);">'+FOCUS_ICONS.trophy+'</div>'+
+        '<div>'+
+          '<div class="all-good-title">Outstanding Performance</div>'+
+          '<div class="all-good-sub">No coaching areas identified — keep up the great work!</div>'+
+        '</div>'+
+      '</div>';
     return;
   }
   fc.innerHTML = areas.map(function(a,i){
     return '<div class="focus-card" style="animation-delay:'+(i*.08)+'s">'+
-      '<div class="focus-card-title">'+a.icon+'&nbsp;'+esc(a.title)+'</div>'+
+      '<div class="focus-card-title">'+iconWrap(a.icon)+'&nbsp;'+esc(a.title)+'</div>'+
       '<p>'+esc(a.text)+'</p></div>';
   }).join('');
 }
