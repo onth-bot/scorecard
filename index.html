@@ -706,25 +706,10 @@ function renderYearly(y) {
     { name:'Sign / Signal Violations Avg', val:y.signViolations, fmt:'dec', zero:true },
   ], false);
 
-  // DSB + CDF DPMO averages (side by side)
-  html += '<div class="metric-2col" style="margin-top:8px;">';
-  html += '<div>';
-  html += sectionHeader('DSB Avg', '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
-  html += buildListHtml([
-    { name:'DSB DPMO Avg', sub:'Delivery Success Behaviors', val:y.dsb, fmt:'dec', neutral:true }
-  ], false);
-  html += '</div>';
-  html += '<div>';
-  html += sectionHeader('CDF Avg', '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>');
-  html += buildListHtml([
-    { name:'CDF DPMO Avg', sub:'Defects Per Million', val:y.cdfDpmo, fmt:'dec', neutral:true }
-  ], false);
-  html += '</div>';
-  html += '</div>';
-
-  // ── SECTION 2: CDF SUMS ──────────────────────────────────
+  // ── SECTION 2: CDF SUMS + DPMO ───────────────────────────
   html += sectionHeader('CDF Detail — Season Totals', '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>', true);
   html += buildListHtml([
+    { name:'CDF DPMO Avg', sub:'Defects Per Million', val:y.cdfDpmo, fmt:'dec', neutral:true },
     { name:'Mishandled Package', sub:'Season Total', val:y.mishandled, fmt:'num', neutral:true },
     { name:'Unprofessional', sub:'Season Total', val:y.unprofessional, fmt:'num', neutral:true },
     { name:'Did Not Follow Instructions', sub:'Season Total', val:y.noFollowInstructions, fmt:'num', neutral:true },
@@ -733,9 +718,10 @@ function renderYearly(y) {
     { name:'Received Wrong Item', sub:'Season Total', val:y.wrongItem, fmt:'num', neutral:true },
   ], false);
 
-  // ── SECTION 3: DSB SUMS ──────────────────────────────────
+  // ── SECTION 3: DSB SUMS + DPMO ───────────────────────────
   html += sectionHeader('DSB Detail — Season Totals', '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>', true);
   html += buildListHtml([
+    { name:'DSB DPMO Avg', sub:'Delivery Success Behaviors', val:y.dsb, fmt:'dec', neutral:true },
     { name:'Simultaneous Deliveries', sub:'Season Total', val:y.simultaneous, fmt:'num', neutral:true },
     { name:'Delivered > 50m', sub:'Season Total', val:y.delivered50m, fmt:'num', neutral:true },
     { name:'Incorrect Scan (Attended)', sub:'Season Total', val:y.incorrectAttended, fmt:'num', neutral:true },
