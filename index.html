@@ -61,7 +61,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 
 /* TAB SWITCHER */
 .tab-bar{position:sticky;top:0;z-index:100;background:var(--dark);border-bottom:1px solid var(--border);display:flex;gap:0;}
-.tab-btn{flex:1;padding:14px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;transition:color .2s,border-color .2s;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab-btn{flex:1;padding:14px 10px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--muted);background:none;border:none;cursor:pointer;transition:color .2s,border-color .2s;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;justify-content:center;gap:6px;}
 .tab-btn:hover{color:var(--white);}
 .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
 .tab-pane{display:none;}
@@ -125,13 +125,13 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .focus-card-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:0.06em;color:var(--gold);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
 .focus-card p{font-size:13px;color:#c8c8d0;line-height:1.7;}
 .all-good{background:var(--green-bg);border:1px solid var(--green-bd);border-radius:6px;padding:16px 20px;display:flex;align-items:center;gap:14px;}
-.all-good-icon{font-size:28px;flex-shrink:0;line-height:1;}
+.all-good-icon{font-size:28px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;}
 .all-good-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.05em;color:var(--green);line-height:1;margin-bottom:3px;}
 .all-good-sub{font-size:12px;color:rgba(34,217,138,0.8);line-height:1.5;}
 
 /* WEEKLY NO DATA */
 .weekly-no-data{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:32px 20px;text-align:center;}
-.weekly-no-data-icon{font-size:32px;margin-bottom:12px;opacity:.4;}
+.weekly-no-data-icon{color:var(--muted);margin-bottom:12px;opacity:0.4;display:flex;justify-content:center;}
 .weekly-no-data-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.05em;color:var(--muted);margin-bottom:6px;}
 .weekly-no-data-sub{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;}
 
@@ -205,17 +205,17 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
   </div>
 </div>
 
-<!-- TAB BAR -->
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="daily" onclick="switchTab('daily')">
-    📋 Daily
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+    Daily
   </button>
   <button class="tab-btn" data-tab="weekly" onclick="switchTab('weekly')">
-    📅 Weekly
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+    Weekly
   </button>
 </div>
 
-<!-- DAILY TAB -->
 <div class="tab-pane active" id="tab-daily">
 <div class="wrapper">
 
@@ -277,7 +277,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
     </div>
   </div>
 
-  <div class="reveal focus-area" id="focusArea" style="display:none;">
+  <div class="reveal focus-area" id="dailyFocusArea" style="display:none;">
     <div class="section-header">
       <div class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
       <div class="section-title-wrap">
@@ -285,24 +285,18 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
       </div>
       <div class="section-line"></div>
     </div>
-    <div id="focusCards"></div>
+    <div id="dailyFocusCards"></div>
   </div>
 
 </div>
-</div><!-- /tab-daily -->
-
-<!-- WEEKLY TAB -->
-<div class="tab-pane" id="tab-weekly">
+</div><div class="tab-pane" id="tab-weekly">
 <div class="wrapper">
 
   <div class="reveal" id="weeklyContent">
-    <!-- Populated by JS -->
-  </div>
+    </div>
 
 </div>
-</div><!-- /tab-weekly -->
-
-<footer class="footer">
+</div><footer class="footer">
   <div class="footer-logo">On The <span>Level</span> Logistics</div>
   <p>825 N Clovis Ave &nbsp;&middot;&nbsp; Fresno, CA &nbsp;&middot;&nbsp; DSJ5</p>
   <p style="margin-top:10px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.14em;color:#333;">ONTH INTERNAL USE ONLY</p>
@@ -345,7 +339,6 @@ function loadData(driver) {
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
     .then(function(d){
       _cachedData = d;
-      // Support both old flat format and new {daily, weekly} format
       var daily  = d.daily  || d;
       var weekly = d.weekly || null;
       renderDaily(daily);
@@ -392,9 +385,9 @@ function renderDaily(d) {
     var s = parseFloat(d.sph);
     if (s < 20) {
       var diff = ((20 - s) / 20 * 100).toFixed(1);
-      document.getElementById('sphAlert').innerHTML = '<div class="metric-alert">Below minimum of 20 SPH by ' + diff + '%</div>';
+      document.getElementById('sphAlert').innerHTML = '<div class="metric-alert" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Below minimum of 20 SPH by ' + diff + '%</div>';
     } else {
-      document.getElementById('sphAlert').innerHTML = '<div class="metric-alert good">Meeting SPH minimum ✓</div>';
+      document.getElementById('sphAlert').innerHTML = '<div class="metric-alert good" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Meeting SPH minimum</div>';
     }
   }
 
@@ -424,7 +417,8 @@ function renderDaily(d) {
     { name:'Received Wrong Item', val:d.wrongItem, fmt:'dec', zero:true },
   ], true, 'No Issues Recorded', 'Thank you for ensuring the customer has a great experience.');
 
-  renderFocus(d);
+  // Render Focus Cards into Daily tab
+  renderFocus(d, 'dailyFocusArea', 'dailyFocusCards');
 }
 
 // ── WEEKLY RENDER ─────────────────────────────────────────────
@@ -465,16 +459,13 @@ function renderWeekly(w) {
     '<div class="weekly-hero-sub">Week ' + esc(w.week) + ' · DSJ5 · Fresno, CA</div>' +
     '</div></div>';
 
-  // Animate ring after render
   setTimeout(function(){
     var rf = document.getElementById('weeklyRingFill');
     if (rf) rf.style.strokeDashoffset = ringOffset;
   }, 300);
 
-  // Delivery Metrics row
   html += '<div class="metric-2col">';
 
-  // Quality + DCR/POD
   html += '<div>';
   html += sectionHeader('Delivery Quality', '<polyline points="20 6 9 17 4 12"/>');
   html += buildListHtml([
@@ -483,7 +474,6 @@ function renderWeekly(w) {
   ], false);
   html += '</div>';
 
-  // CDF DPMO + DSB
   html += '<div>';
   html += sectionHeader('Summary Scores', '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>');
   html += buildListHtml([
@@ -492,9 +482,8 @@ function renderWeekly(w) {
   ], false);
   html += '</div>';
 
-  html += '</div>'; // /metric-2col
+  html += '</div>';
 
-  // Safety
   html += sectionHeader('Driving Safety', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', true);
   html += buildListHtml([
     { name:'Seatbelt-Off Rate', sub:'Per 100 trips', val:w.seatbelt, fmt:'dec', zero:true },
@@ -504,7 +493,6 @@ function renderWeekly(w) {
     { name:'Sign / Signal Violations Rate', sub:'Per 100 trips', val:w.signViolations, fmt:'dec', zero:true },
   ], true, 'No Safety Issues', 'Clean week — thank you for driving safely.');
 
-  // DSB + CDF detail
   html += '<div class="metric-2col">';
 
   html += '<div>';
@@ -531,21 +519,33 @@ function renderWeekly(w) {
   ], true, 'No CDF Issues', 'Excellent customer experience this week.');
   html += '</div>';
 
-  html += '</div>'; // /metric-2col
+  html += '</div>';
 
-  // Feedback details box
   if (w.feedbackDetails && w.feedbackDetails.trim()) {
     html += '<div class="feedback-box"><div class="feedback-box-label">Customer Feedback Notes</div>' + esc(w.feedbackDetails) + '</div>';
   }
 
+  // Insert Focus Area specifically for Weekly Data
+  html += '<div class="reveal focus-area" id="weeklyFocusArea" style="display:none; margin-top:32px;">' +
+    '<div class="section-header">' +
+    '<div class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>' +
+    '<div class="section-title-wrap"><div class="section-title">Focus Area & Guidance</div></div>' +
+    '<div class="section-line"></div>' +
+    '</div>' +
+    '<div id="weeklyFocusCards"></div>' +
+    '</div>';
+
   el.innerHTML = html;
+
+  // Render the focus cards passing the weekly object and weekly div IDs
+  renderFocus(w, 'weeklyFocusArea', 'weeklyFocusCards');
   reObserve();
 }
 
 function renderWeeklyNoData(msg) {
   document.getElementById('weeklyContent').innerHTML =
     '<div class="weekly-no-data" style="margin-top:32px;">' +
-    '<div class="weekly-no-data-icon">📅</div>' +
+    '<div class="weekly-no-data-icon"><svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>' +
     '<div class="weekly-no-data-title">No Weekly Data</div>' +
     '<div class="weekly-no-data-sub">' + esc(msg) + '</div></div>';
 }
@@ -604,7 +604,6 @@ function buildListHtml(items, zeroFilter, successTitle, successMsg) {
   }).join('') + '</div>';
 }
 
-// ── ORIGINAL buildList (mutates DOM directly, used by daily) ──
 function buildList(id, items, zeroFilter, successTitle, successMsg) {
   document.getElementById(id).innerHTML = buildListHtml(items, zeroFilter, successTitle, successMsg);
 }
@@ -624,27 +623,34 @@ function iconWrap(svg) {
   return '<span style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:3px;flex-shrink:0;color:var(--gold);">'+svg+'</span>';
 }
 
-function renderFocus(d) {
+function renderFocus(d, areaId, cardsId) {
   var areas = [];
+  
   if (d.pod != null && (parseFloat(d.pod)>1?parseFloat(d.pod):parseFloat(d.pod)*100) < 99.5)
     areas.push({icon:FOCUS_ICONS.pod,title:'Photo on Delivery (POD)',text:'Your photos need to meet Amazon\'s quality standards. Step back to frame the package clearly in a safe, recognizable location. Avoid blurry images, poor lighting, people in frame, shadows, reflections, or anything showing addresses or license plates. Never photograph from inside the van or while holding the package. Always review before submitting.'});
   if (d.dcr != null && (parseFloat(d.dcr)>1?parseFloat(d.dcr):parseFloat(d.dcr)*100) < 99.5)
     areas.push({icon:FOCUS_ICONS.dcr,title:'Delivery Completion Rate (DCR)',text:'This measures successful deliveries or valid returns. Always attempt delivery first. Call the customer and let it ring at least 12 seconds, send a text if no answer, and contact Driver Support when needed. Log every attempt immediately and use the correct RTS codes.'});
   if (d.sph != null && parseFloat(d.sph) < 20)
     areas.push({icon:FOCUS_ICONS.sph,title:'Stops Per Hour (SPH)',text:'The minimum requirement is 20 stops per hour. To improve efficiency, organize your next bag in the cabin, minimize time in the van at each stop, and move purposefully but safely between the van and delivery point.'});
+  
   var safetySum = (parseFloat(d.seatbelt)||0)+(parseFloat(d.speeding)||0)+(parseFloat(d.distractions)||0)+(parseFloat(d.following)||0)+(parseFloat(d.signViolations)||0);
   if (safetySum > 0)
     areas.push({icon:FOCUS_ICONS.shield,title:'Safe Driving',text:'Amazon monitors speeding, seatbelt use, phone distractions, tailgating, and rolling stops. Always buckle up properly, avoid phone use unless mounted, maintain safe following distance, obey all traffic signs, and never rush through lights or stop signs.'});
+  
   var dsbSum = (parseFloat(d.simultaneous)||0)+(parseFloat(d.delivered50m)||0)+(parseFloat(d.incorrectAttended)||0)+(parseFloat(d.incorrectUnattended)||0)+(parseFloat(d.noPod)||0)+(parseFloat(d.scannedNotDelivered)||0);
   if (dsbSum > 0)
     areas.push({icon:FOCUS_ICONS.dsb,title:'Delivery Success Behaviors (DSB)',text:'This tracks errors that result in \'package not received\' reports. Always verify the address, especially at group stops. Deliver within the geopin zone, use the proper scan type (attended or unattended), and capture clear PODs. Only mark deliveries as Receptionist or Household Member when genuinely applicable.'});
+  
   var cdfSum = (parseFloat(d.mishandled)||0)+(parseFloat(d.unprofessional)||0)+(parseFloat(d.noFollowInstructions)||0)+(parseFloat(d.wrongAddress)||0)+(parseFloat(d.neverReceived)||0)+(parseFloat(d.wrongItem)||0);
   if (cdfSum > 0)
     areas.push({icon:FOCUS_ICONS.cdf,title:'Customer Delivery Feedback (CDF)',text:'This reflects complaints about issues under your control: wrong address, ignored instructions, or unprofessional conduct. Always verify addresses, follow delivery notes precisely, and place packages in secure, discreet locations. Stay professional: wear your uniform, keep music volume low, and avoid personal calls during deliveries. When uncertain, contact the customer or Driver Support.'});
 
-  var fa = document.getElementById('focusArea');
-  var fc = document.getElementById('focusCards');
+  var fa = document.getElementById(areaId);
+  var fc = document.getElementById(cardsId);
+  
+  if (!fa || !fc) return;
   fa.style.display = 'block';
+  
   if (!areas.length) {
     fc.innerHTML = '<div class="all-good">' +
       '<div class="all-good-icon" style="color:var(--green);">'+FOCUS_ICONS.trophy+'</div>' +
@@ -652,6 +658,7 @@ function renderFocus(d) {
       '<div class="all-good-sub">You\'re excelling across all metrics—quality photos, strong pace, completed deliveries, safe driving, and positive customer interactions. Keep up the excellent work.</div></div></div>';
     return;
   }
+  
   fc.innerHTML = areas.map(function(a,i){
     return '<div class="focus-card" style="animation-delay:'+(i*.08)+'s">' +
       '<div class="focus-card-title">'+iconWrap(a.icon)+'&nbsp;'+esc(a.title)+'</div>' +
