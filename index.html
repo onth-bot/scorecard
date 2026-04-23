@@ -219,6 +219,8 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 <div class="tab-pane active" id="tab-daily">
 <div class="wrapper">
 
+  <div class="reveal" id="dailyShiftDateDisplay"></div>
+
   <div class="reveal">
     <div class="metric-2col">
       <div>
@@ -369,6 +371,16 @@ function renderDaily(d) {
   if (!d.dcr && !d.pod && !d.sph) {
     document.getElementById('noDataBanner').style.display = 'block';
   }
+  
+  // Render Date Banner
+  var displayDate = d.date ? formatDisplayDate(d.date) : 'NO RECENT SHIFT FOUND';
+  document.getElementById('dailyShiftDateDisplay').innerHTML = 
+    '<div style="background:rgba(0,212,255,0.04); border:1px solid var(--gold-bd); border-radius:6px; padding:12px 16px; display:flex; align-items:center; gap:14px; margin-top:24px; margin-bottom:12px;">' +
+    '<div style="color:var(--gold); display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>' +
+    '<div><div style="font-family:\'DM Mono\',monospace; font-size:9.5px; letter-spacing:0.18em; color:var(--gold); text-transform:uppercase; margin-bottom:2px;">Shift Data Displayed</div>' +
+    '<div style="font-family:\'Bebas Neue\',sans-serif; font-size:18px; letter-spacing:0.04em; color:var(--white); line-height:1;">' + displayDate + '</div></div>' +
+    '</div>';
+
   if (d.overall != null) {
     document.getElementById('heroScoreRow').style.display = 'grid';
     var score = parseFloat(d.overall);
@@ -427,7 +439,7 @@ function renderDaily(d) {
     { name:'Did Not Follow Instructions', val:d.noFollowInstructions, fmt:'dec', zero:true },
     { name:'Wrong Address', val:d.wrongAddress, fmt:'dec', zero:true },
     { name:'Never Received Delivery', val:d.neverReceived, fmt:'dec', zero:true },
-    { name:'Received Wrong Item', val:d.wrongItem, fmt:'dec', zero:true },
+    { name:'Received Wrong Item', val:w.wrongItem, fmt:'dec', zero:true },
   ], true, 'No Issues Recorded', 'Thank you for ensuring the customer has a great experience.');
 
   // Render Focus Cards into Daily tab
@@ -509,19 +521,8 @@ function renderWeekly(w) {
   html += '</div>';
   html += '</div>'; // End metric-2col
 
-  // Summary Scores and Driving Safety (Side-by-Side)
-  html += '<div class="metric-2col">';
-  
-  html += '<div>';
-  html += sectionHeader('Summary Scores', '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>');
-  html += buildListHtml([
-    { name:'CDF DPMO', sub:'Defects Per Million', val:w.cdfDpmo, fmt:'num', neutral:true },
-    { name:'DSB Score', sub:'Delivery Success Behaviors', val:w.dsb, fmt:'dec', neutral:true },
-  ], false);
-  html += '</div>';
-
-  html += '<div>';
-  html += sectionHeader('Driving Safety', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>');
+  // Driving Safety (Full Width)
+  html += sectionHeader('Driving Safety', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', true);
   html += buildListHtml([
     { name:'Seatbelt-Off Rate', val:w.seatbelt, fmt:'dec', zero:true },
     { name:'Speeding Event Rate', val:w.speeding, fmt:'dec', zero:true },
@@ -529,16 +530,19 @@ function renderWeekly(w) {
     { name:'Following Distance Rate', val:w.following, fmt:'dec', zero:true },
     { name:'Sign / Signal Violations', val:w.signViolations, fmt:'dec', zero:true },
   ], true, 'No Safety Issues', 'Clean week — well done.');
-  html += '</div>';
-  
-  html += '</div>'; // End metric-2col
 
 
-  // DSB and CDF Detail (Side-by-Side)
-  html += '<div class="metric-2col">';
+  // DSB and CDF Detail (Side-by-Side) with DPMO totals on top
+  html += '<div class="metric-2col" style="margin-top:8px;">';
 
   html += '<div>';
   html += sectionHeader('DSB Detail', '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>');
+  // DSB DPMO independent block
+  html += buildListHtml([
+    { name:'DSB DPMO', sub:'Delivery Success Behaviors', val:w.dsb, fmt:'dec', neutral:true }
+  ], false);
+  html += '<div style="height:8px;"></div>'; // spacer
+  // DSB Detail List
   html += buildListHtml([
     { name:'Simultaneous Deliveries', val:w.simultaneous, fmt:'dec', zero:true },
     { name:'Delivered > 50m', val:w.delivered50m, fmt:'dec', zero:true },
@@ -551,6 +555,12 @@ function renderWeekly(w) {
 
   html += '<div>';
   html += sectionHeader('CDF Detail', '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>');
+  // CDF DPMO independent block
+  html += buildListHtml([
+    { name:'CDF DPMO', sub:'Defects Per Million', val:w.cdfDpmo, fmt:'num', neutral:true }
+  ], false);
+  html += '<div style="height:8px;"></div>'; // spacer
+  // CDF Detail List
   html += buildListHtml([
     { name:'Mishandled Package', val:w.mishandled, fmt:'dec', zero:true },
     { name:'Unprofessional', val:w.unprofessional, fmt:'dec', zero:true },
@@ -561,7 +571,7 @@ function renderWeekly(w) {
   ], true, 'No CDF Issues', 'Excellent customer experience this week.');
   html += '</div>';
 
-  html += '</div>';
+  html += '</div>'; // End metric-2col
 
   if (w.feedbackDetails && w.feedbackDetails.trim()) {
     html += '<div class="feedback-box"><div class="feedback-box-label">Customer Feedback Notes</div>' + esc(w.feedbackDetails) + '</div>';
