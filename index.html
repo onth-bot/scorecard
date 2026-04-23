@@ -176,7 +176,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
   <div class="hero-inner">
     <div class="hero-top">
       <div class="hero-badge">DSJ5 · Scorecard</div>
-      <div class="hero-date-badge" id="heroDt"></div>
+      <div class="hero-date-badge" id="heroDt">LOADING...</div>
     </div>
     <div class="hero-name-label">Driver</div>
     <div class="hero-name" id="heroName">Loading...</div>
@@ -200,7 +200,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
       </div>
     </div>
     <div id="noDataBanner" style="display:none;" class="no-data-banner">
-      No data found for yesterday · Check back after routes are completed
+      No data found · Check back after routes are completed
     </div>
   </div>
 </div>
@@ -317,10 +317,7 @@ function switchTab(tab) {
 document.addEventListener('DOMContentLoaded', function() {
   var params = new URLSearchParams(window.location.search);
   var driver = (params.get('driver') || '').trim();
-  var yest = new Date();
-  yest.setDate(yest.getDate() - 1);
-  document.getElementById('heroDt').textContent =
-    yest.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'}).toUpperCase();
+  
   document.title = driver ? driver + ' · ONTH Scorecard' : 'ONTH Daily Scorecard';
 
   if (!driver) {
@@ -334,6 +331,13 @@ document.addEventListener('DOMContentLoaded', function() {
   loadData(driver);
 });
 
+function formatDisplayDate(dateString) {
+  if (!dateString) return '';
+  var d = new Date(dateString);
+  if (isNaN(d)) return dateString;
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+}
+
 function loadData(driver) {
   fetch(API_URL + '?driver=' + encodeURIComponent(driver))
     .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
@@ -341,10 +345,19 @@ function loadData(driver) {
       _cachedData = d;
       var daily  = d.daily  || d;
       var weekly = d.weekly || null;
+      
+      // Update Hero Date dynamically
+      if (daily.date) {
+        document.getElementById('heroDt').textContent = formatDisplayDate(daily.date);
+      } else {
+        document.getElementById('heroDt').textContent = 'NO RECENT SHIFT';
+      }
+
       renderDaily(daily);
       renderWeekly(weekly);
     })
     .catch(function(e){
+      document.getElementById('heroDt').textContent = 'ERROR';
       document.getElementById('noDataBanner').style.display = 'block';
       setAllEmpty('Failed to load: ' + e.message);
       renderWeeklyNoData('Failed to load data');
@@ -464,6 +477,7 @@ function renderWeekly(w) {
     if (rf) rf.style.strokeDashoffset = ringOffset;
   }, 300);
 
+  // Delivery Quality and Delivery Speed (Side-by-Side)
   html += '<div class="metric-2col">';
 
   html += '<div>';
@@ -475,24 +489,52 @@ function renderWeekly(w) {
   html += '</div>';
 
   html += '<div>';
+  html += sectionHeader('Delivery Speed', '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>');
+  html += buildListHtml([
+    { name:'Avg Stops Per Hour', sub:'Weekly SPH', val:w.weeklySph, fmt:'dec', thresholds:[20,18], dir:'high' },
+    { name:'Total Stops', sub:'Weekly Sum', val:w.weeklyStops, fmt:'num', neutral:true },
+    { name:'Total Packages', sub:'Weekly Sum', val:w.weeklyPkgs, fmt:'num', neutral:true },
+  ], false);
+  
+  // Weekly SPH Alert Banner
+  if (w.weeklySph != null) {
+    var ws = parseFloat(w.weeklySph);
+    if (ws < 20) {
+      var wdiff = ((20 - ws) / 20 * 100).toFixed(1);
+      html += '<div class="metric-alert" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Below minimum of 20 SPH by ' + wdiff + '%</div>';
+    } else {
+      html += '<div class="metric-alert good" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Meeting SPH minimum</div>';
+    }
+  }
+  html += '</div>';
+  html += '</div>'; // End metric-2col
+
+  // Summary Scores and Driving Safety (Side-by-Side)
+  html += '<div class="metric-2col">';
+  
+  html += '<div>';
   html += sectionHeader('Summary Scores', '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>');
   html += buildListHtml([
-    { name:'CDF DPMO', sub:'Defects Per Million Opportunities', val:w.cdfDpmo, fmt:'num', neutral:true },
-    { name:'DSB Score', val:w.dsb, fmt:'dec', neutral:true },
+    { name:'CDF DPMO', sub:'Defects Per Million', val:w.cdfDpmo, fmt:'num', neutral:true },
+    { name:'DSB Score', sub:'Delivery Success Behaviors', val:w.dsb, fmt:'dec', neutral:true },
   ], false);
   html += '</div>';
 
-  html += '</div>';
-
-  html += sectionHeader('Driving Safety', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', true);
+  html += '<div>';
+  html += sectionHeader('Driving Safety', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>');
   html += buildListHtml([
-    { name:'Seatbelt-Off Rate', sub:'Per 100 trips', val:w.seatbelt, fmt:'dec', zero:true },
-    { name:'Speeding Event Rate', sub:'Per 100 trips', val:w.speeding, fmt:'dec', zero:true },
-    { name:'Distractions Rate', sub:'Per 100 trips', val:w.distractions, fmt:'dec', zero:true },
-    { name:'Following Distance Rate', sub:'Per 100 trips', val:w.following, fmt:'dec', zero:true },
-    { name:'Sign / Signal Violations Rate', sub:'Per 100 trips', val:w.signViolations, fmt:'dec', zero:true },
-  ], true, 'No Safety Issues', 'Clean week — thank you for driving safely.');
+    { name:'Seatbelt-Off Rate', val:w.seatbelt, fmt:'dec', zero:true },
+    { name:'Speeding Event Rate', val:w.speeding, fmt:'dec', zero:true },
+    { name:'Distractions Rate', val:w.distractions, fmt:'dec', zero:true },
+    { name:'Following Distance Rate', val:w.following, fmt:'dec', zero:true },
+    { name:'Sign / Signal Violations', val:w.signViolations, fmt:'dec', zero:true },
+  ], true, 'No Safety Issues', 'Clean week — well done.');
+  html += '</div>';
+  
+  html += '</div>'; // End metric-2col
 
+
+  // DSB and CDF Detail (Side-by-Side)
   html += '<div class="metric-2col">';
 
   html += '<div>';
@@ -626,11 +668,16 @@ function iconWrap(svg) {
 function renderFocus(d, areaId, cardsId) {
   var areas = [];
   
-  if (d.pod != null && (parseFloat(d.pod)>1?parseFloat(d.pod):parseFloat(d.pod)*100) < 99.5)
+  // Handle keys for both Daily and Weekly objects
+  var podVal = d.pod;
+  var dcrVal = d.dcr;
+  var sphVal = d.sph != null ? d.sph : d.weeklySph; 
+  
+  if (podVal != null && (parseFloat(podVal)>1?parseFloat(podVal):parseFloat(podVal)*100) < 99.5)
     areas.push({icon:FOCUS_ICONS.pod,title:'Photo on Delivery (POD)',text:'Your photos need to meet Amazon\'s quality standards. Step back to frame the package clearly in a safe, recognizable location. Avoid blurry images, poor lighting, people in frame, shadows, reflections, or anything showing addresses or license plates. Never photograph from inside the van or while holding the package. Always review before submitting.'});
-  if (d.dcr != null && (parseFloat(d.dcr)>1?parseFloat(d.dcr):parseFloat(d.dcr)*100) < 99.5)
+  if (dcrVal != null && (parseFloat(dcrVal)>1?parseFloat(dcrVal):parseFloat(dcrVal)*100) < 99.5)
     areas.push({icon:FOCUS_ICONS.dcr,title:'Delivery Completion Rate (DCR)',text:'This measures successful deliveries or valid returns. Always attempt delivery first. Call the customer and let it ring at least 12 seconds, send a text if no answer, and contact Driver Support when needed. Log every attempt immediately and use the correct RTS codes.'});
-  if (d.sph != null && parseFloat(d.sph) < 20)
+  if (sphVal != null && parseFloat(sphVal) < 20)
     areas.push({icon:FOCUS_ICONS.sph,title:'Stops Per Hour (SPH)',text:'The minimum requirement is 20 stops per hour. To improve efficiency, organize your next bag in the cabin, minimize time in the van at each stop, and move purposefully but safely between the van and delivery point.'});
   
   var safetySum = (parseFloat(d.seatbelt)||0)+(parseFloat(d.speeding)||0)+(parseFloat(d.distractions)||0)+(parseFloat(d.following)||0)+(parseFloat(d.signViolations)||0);
