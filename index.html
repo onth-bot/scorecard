@@ -730,6 +730,46 @@ function renderYearly(y) {
     { name:'Scanned Not Delivered', sub:'Season Total', val:y.scannedNotDelivered, fmt:'num', neutral:true },
   ], false);
 
+  // ── WEEKLY HISTORY TABLE ──────────────────────────────────
+  var hist = y.weeklyHistory || [];
+  if (hist.length) {
+    html += '<div class="section-header" style="margin-top:32px;">' +
+      '<div class="section-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>' +
+      '<div class="section-title-wrap"><div class="section-title">Week-by-Week Query</div></div>' +
+      '<div class="section-line"></div></div>';
+    html += '<div style="overflow-x:auto;border-radius:6px;border:1px solid var(--border);">' +
+      '<table style="width:100%;border-collapse:collapse;background:var(--card);font-family:\'DM Mono\',monospace;font-size:10px;">' +
+      '<thead><tr style="border-bottom:1px solid var(--border);">' +
+      '<th style="padding:8px 12px;text-align:left;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">Week</th>' +
+      '<th style="padding:8px 12px;text-align:center;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">Overall</th>' +
+      '<th style="padding:8px 12px;text-align:center;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">SPH</th>' +
+      '<th style="padding:8px 12px;text-align:center;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">POD</th>' +
+      '<th style="padding:8px 12px;text-align:center;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">DCR</th>' +
+      '<th style="padding:8px 12px;text-align:center;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">DSB DPMO</th>' +
+      '<th style="padding:8px 12px;text-align:center;color:var(--gold);letter-spacing:0.15em;text-transform:uppercase;white-space:nowrap;font-weight:500;">CDF DPMO</th>' +
+      '</tr></thead><tbody>';
+    hist.forEach(function(row, idx) {
+      var bg = idx % 2 === 0 ? 'background:rgba(255,255,255,0.01);' : '';
+      function fmtCell(v, isPct) {
+        if (v == null || v === '') return '<td style="padding:7px 12px;text-align:center;color:var(--muted);">—</td>';
+        var n = parseFloat(v);
+        if (isNaN(n)) return '<td style="padding:7px 12px;text-align:center;color:var(--muted);">—</td>';
+        var display = isPct ? ((n > 1 ? n : n * 100).toFixed(2) + '%') : n.toFixed(2);
+        return '<td style="padding:7px 12px;text-align:center;color:var(--white);">' + display + '</td>';
+      }
+      html += '<tr style="border-bottom:1px solid rgba(30,37,53,0.6);' + bg + '">' +
+        '<td style="padding:7px 12px;color:var(--gold);white-space:nowrap;">' + esc(row.week) + '</td>' +
+        fmtCell(row.overall, false) +
+        fmtCell(row.sph, false) +
+        fmtCell(row.pod, true) +
+        fmtCell(row.dcr, true) +
+        fmtCell(row.dsb, false) +
+        fmtCell(row.cdfDpmo, false) +
+        '</tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
   el.innerHTML = html;
   reObserve();
 }
