@@ -139,7 +139,9 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .feedback-box{background:rgba(255,176,32,0.05);border:1px solid var(--amber-bd);border-radius:4px;padding:12px 14px;margin-top:8px;font-size:12px;color:#d4a847;line-height:1.7;font-family:'DM Sans',sans-serif;}
 .feedback-box-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;}
 
-/* YEARLY SEASON BADGE */
+/* YEARLY METRIC RANK GRID */
+.metric-rank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
+@media(max-width:560px){.metric-rank-grid{grid-template-columns:repeat(2,1fr);}}
 .yearly-season-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid var(--gold-bd);border-radius:3px;padding:5px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
 
 /* FOOTER */
@@ -594,8 +596,8 @@ function renderYearly(y) {
     '<div class="section-title-wrap"><div class="section-title">2026 Season</div></div>' +
     '<div class="section-line"></div></div>';
 
-  // Hero ring
-  html += '<div class="weekly-hero">' +
+  // Hero ring + rank cards
+  html += '<div class="weekly-hero" style="flex-wrap:wrap;gap:16px;">' +
     '<div class="weekly-ring-wrap">' +
     '<svg viewBox="0 0 80 80"><circle class="weekly-ring-track" cx="40" cy="40" r="35"/>' +
     '<circle class="weekly-ring-fill" id="yearlyRingFill" cx="40" cy="40" r="35"/></svg>' +
@@ -609,6 +611,33 @@ function renderYearly(y) {
     '<div class="weekly-hero-sub">All Weeks · DSJ5 · Fresno, CA</div>' +
     (y.rank != null && y.total != null ? '<div style="margin-top:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);">RANKED <span style="color:var(--gold);font-size:13px;">' + y.rank + '</span> OUT OF <span style="color:var(--gold);font-size:13px;">' + y.total + '</span> DRIVERS</div>' : '') +
     '</div></div>';
+
+  // Per-metric rank cards
+  var mr = y.metricRanks || {};
+  var metricCardDefs = [
+    { key:'overall', label:'Overall',  val:y.overall,   fmt:'dec' },
+    { key:'dcr',     label:'DCR',      val:y.dcr,       fmt:'pct' },
+    { key:'pod',     label:'POD',      val:y.pod,       fmt:'pct' },
+    { key:'sph',     label:'SPH',      val:y.yearlySph, fmt:'dec' },
+    { key:'cdfDpmo', label:'CDF DPMO', val:y.cdfDpmo,   fmt:'dec' },
+    { key:'dsb',     label:'DSB DPMO', val:y.dsb,       fmt:'dec' }
+  ];
+  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;" class="metric-rank-grid">';
+  metricCardDefs.forEach(function(mc) {
+    var rankInfo = mr[mc.key];
+    var rankTxt = rankInfo ? ('#' + rankInfo.rank + ' / ' + rankInfo.total) : '—';
+    var valDisplay = '—';
+    if (mc.val != null) {
+      var n = parseFloat(mc.val);
+      if (!isNaN(n)) valDisplay = mc.fmt === 'pct' ? ((n > 1 ? n : n * 100).toFixed(2) + '%') : n.toFixed(2);
+    }
+    html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px;">' + mc.label + '</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--white);line-height:1;margin-bottom:4px;">' + valDisplay + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--gold);letter-spacing:0.1em;">' + rankTxt + '</div>' +
+      '</div>';
+  });
+  html += '</div>';
 
   setTimeout(function(){
     var rf = document.getElementById('yearlyRingFill');
