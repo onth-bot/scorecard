@@ -623,7 +623,11 @@ function renderYearly(y) {
     { key:'cdfDpmo', label:'CDF DPMO', val:y.cdfDpmo,   fmt:'dec', dir:'low'  },
     { key:'dsb',     label:'DSB DPMO', val:y.dsb,       fmt:'dec', dir:'low'  }
   ];
-  html += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);margin:16px 0 8px;display:flex;align-items:center;gap:10px;">2026 Season Rank by Metric <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></div>';
+  html += '<div style="display:flex;align-items:center;gap:12px;margin:20px 0 12px;">' +
+    '<div style="width:32px;height:32px;flex-shrink:0;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:4px;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8 14l-4 6h16l-4-6"/></svg></div>' +
+    '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:clamp(22px,5vw,34px);line-height:1;letter-spacing:0.03em;color:var(--white);">2026 Season Rank by Metric</div>' +
+    '<div style="flex:1;height:1px;background:var(--border);"></div>' +
+    '</div>';
   html += '<div class="metric-rank-grid">';
   metricCardDefs.forEach(function(mc) {
     var rankInfo = mr[mc.key];
