@@ -503,6 +503,7 @@ function renderWeekly(w) {
     '<div class="weekly-hero-week">Weekly Summary</div>' +
     '<div class="weekly-hero-title">Performance Overview</div>' +
     '<div class="weekly-hero-sub">Week ' + esc(w.week) + ' · DSJ5 · Fresno, CA</div>' +
+    (w.rank != null && w.total != null ? '<div style="margin-top:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);">RANKED <span style="color:var(--gold);font-size:13px;">' + w.rank + '</span> OUT OF <span style="color:var(--gold);font-size:13px;">' + w.total + '</span> DRIVERS</div>' : '') +
     '</div></div>';
 
   setTimeout(function(){
@@ -657,6 +658,7 @@ function renderYearly(y) {
     '<div class="weekly-hero-week">2026 Average Score</div>' +
     '<div class="weekly-hero-title">Season Overview</div>' +
     '<div class="weekly-hero-sub">All Weeks · DSJ5 · Fresno, CA</div>' +
+    (y.rank != null && y.total != null ? '<div style="margin-top:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);">RANKED <span style="color:var(--gold);font-size:13px;">' + y.rank + '</span> OUT OF <span style="color:var(--gold);font-size:13px;">' + y.total + '</span> DRIVERS</div>' : '') +
     '</div></div>';
 
   setTimeout(function(){
