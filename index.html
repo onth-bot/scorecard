@@ -140,8 +140,9 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 .feedback-box-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;}
 
 /* YEARLY METRIC RANK GRID */
-.metric-rank-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;}
-@media(max-width:560px){.metric-rank-grid{grid-template-columns:repeat(2,1fr);}}
+.metric-rank-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px;}
+@media(max-width:700px){.metric-rank-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:440px){.metric-rank-grid{grid-template-columns:repeat(2,1fr);}}
 .yearly-season-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,0.06);border:1px solid var(--gold-bd);border-radius:3px;padding:5px 14px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;}
 
 /* FOOTER */
@@ -597,7 +598,8 @@ function renderYearly(y) {
     '<div class="section-line"></div></div>';
 
   // Hero ring + rank cards
-  html += '<div class="weekly-hero" style="flex-wrap:wrap;gap:16px;">' +
+  // Hero ring + season overview
+  html += '<div class="weekly-hero">' +
     '<div class="weekly-ring-wrap">' +
     '<svg viewBox="0 0 80 80"><circle class="weekly-ring-track" cx="40" cy="40" r="35"/>' +
     '<circle class="weekly-ring-fill" id="yearlyRingFill" cx="40" cy="40" r="35"/></svg>' +
@@ -612,29 +614,48 @@ function renderYearly(y) {
     (y.rank != null && y.total != null ? '<div style="margin-top:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);">RANKED <span style="color:var(--gold);font-size:13px;">' + y.rank + '</span> OUT OF <span style="color:var(--gold);font-size:13px;">' + y.total + '</span> DRIVERS</div>' : '') +
     '</div></div>';
 
-  // Per-metric rank cards
+  // Per-metric rank cards — overall removed, rank is hero
   var mr = y.metricRanks || {};
   var metricCardDefs = [
-    { key:'overall', label:'Overall',  val:y.overall,   fmt:'dec' },
-    { key:'dcr',     label:'DCR',      val:y.dcr,       fmt:'pct' },
-    { key:'pod',     label:'POD',      val:y.pod,       fmt:'pct' },
-    { key:'sph',     label:'SPH',      val:y.yearlySph, fmt:'dec' },
-    { key:'cdfDpmo', label:'CDF DPMO', val:y.cdfDpmo,   fmt:'dec' },
-    { key:'dsb',     label:'DSB DPMO', val:y.dsb,       fmt:'dec' }
+    { key:'dcr',     label:'DCR',      val:y.dcr,       fmt:'pct', dir:'high' },
+    { key:'pod',     label:'POD',      val:y.pod,       fmt:'pct', dir:'high' },
+    { key:'sph',     label:'SPH',      val:y.yearlySph, fmt:'dec', dir:'high' },
+    { key:'cdfDpmo', label:'CDF DPMO', val:y.cdfDpmo,   fmt:'dec', dir:'low'  },
+    { key:'dsb',     label:'DSB DPMO', val:y.dsb,       fmt:'dec', dir:'low'  }
   ];
-  html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px;" class="metric-rank-grid">';
+  html += '<div class="metric-rank-grid">';
   metricCardDefs.forEach(function(mc) {
     var rankInfo = mr[mc.key];
-    var rankTxt = rankInfo ? ('#' + rankInfo.rank + ' / ' + rankInfo.total) : '—';
+    var rank = rankInfo ? rankInfo.rank : null;
+    var total = rankInfo ? rankInfo.total : null;
+    var pct = (rank != null && total != null) ? rank / total : null;
+
+    // Border color: top third = green, middle = amber, bottom third = red
+    // For 'low' direction (DPMO), low rank number = good so same logic applies
+    var borderColor = 'var(--border)';
+    if (pct != null) {
+      borderColor = pct <= 0.33 ? 'var(--green)' : pct <= 0.66 ? 'var(--amber)' : 'var(--red)';
+    }
+
+    var rankNumColor = 'var(--gold)';
+    if (pct != null) {
+      rankNumColor = pct <= 0.33 ? 'var(--green)' : pct <= 0.66 ? 'var(--amber)' : 'var(--red)';
+    }
+
     var valDisplay = '—';
     if (mc.val != null) {
       var n = parseFloat(mc.val);
       if (!isNaN(n)) valDisplay = mc.fmt === 'pct' ? ((n > 1 ? n : n * 100).toFixed(2) + '%') : n.toFixed(2);
     }
-    html += '<div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:12px 14px;">' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold-dim);margin-bottom:4px;">' + mc.label + '</div>' +
-      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--white);line-height:1;margin-bottom:4px;">' + valDisplay + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--gold);letter-spacing:0.1em;">' + rankTxt + '</div>' +
+
+    var rankDisplay = rank != null ? ('#' + rank) : '—';
+    var outOfDisplay = total != null ? ('out of ' + total) : '';
+
+    html += '<div style="background:var(--card);border:1px solid ' + borderColor + ';border-left:3px solid ' + borderColor + ';border-radius:6px;padding:14px 16px;">' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">' + mc.label + '</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:' + rankNumColor + ';line-height:1;letter-spacing:0.02em;">' + rankDisplay + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:8px;">' + outOfDisplay + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--white);letter-spacing:0.05em;">' + valDisplay + '</div>' +
       '</div>';
   });
   html += '</div>';
