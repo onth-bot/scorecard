@@ -616,6 +616,7 @@ function renderYearly(y) {
 
   // Per-metric rank cards — overall removed, rank is hero
   var mr = y.metricRanks || {};
+  html += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-dim);margin:16px 0 8px;display:flex;align-items:center;gap:10px;">2026 Season Rank by Metric <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></div>';
   var metricCardDefs = [
     { key:'dcr',     label:'DCR',      val:y.dcr,       fmt:'pct', dir:'high' },
     { key:'pod',     label:'POD',      val:y.pod,       fmt:'pct', dir:'high' },
@@ -623,6 +624,7 @@ function renderYearly(y) {
     { key:'cdfDpmo', label:'CDF DPMO', val:y.cdfDpmo,   fmt:'dec', dir:'low'  },
     { key:'dsb',     label:'DSB DPMO', val:y.dsb,       fmt:'dec', dir:'low'  }
   ];
+  html += '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-dim);margin:16px 0 8px;display:flex;align-items:center;gap:10px;">2026 Season Rank by Metric <span style="flex:1;height:1px;background:var(--border);display:inline-block;"></span></div>';
   html += '<div class="metric-rank-grid">';
   metricCardDefs.forEach(function(mc) {
     var rankInfo = mr[mc.key];
@@ -630,17 +632,11 @@ function renderYearly(y) {
     var total = rankInfo ? rankInfo.total : null;
     var pct = (rank != null && total != null) ? rank / total : null;
 
-    // Border color: top third = green, middle = amber, bottom third = red
-    // For 'low' direction (DPMO), low rank number = good so same logic applies
     var borderColor = 'var(--border)';
     if (pct != null) {
       borderColor = pct <= 0.33 ? 'var(--green)' : pct <= 0.66 ? 'var(--amber)' : 'var(--red)';
     }
-
-    var rankNumColor = 'var(--gold)';
-    if (pct != null) {
-      rankNumColor = pct <= 0.33 ? 'var(--green)' : pct <= 0.66 ? 'var(--amber)' : 'var(--red)';
-    }
+    var rankNumColor = borderColor;
 
     var valDisplay = '—';
     if (mc.val != null) {
@@ -654,8 +650,8 @@ function renderYearly(y) {
     html += '<div style="background:var(--card);border:1px solid ' + borderColor + ';border-left:3px solid ' + borderColor + ';border-radius:6px;padding:14px 16px;">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:8.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;">' + mc.label + '</div>' +
       '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:' + rankNumColor + ';line-height:1;letter-spacing:0.02em;">' + rankDisplay + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:8px;">' + outOfDisplay + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--white);letter-spacing:0.05em;">' + valDisplay + '</div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:10px;">' + outOfDisplay + '</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--white);letter-spacing:0.04em;line-height:1;">' + valDisplay + '</div>' +
       '</div>';
   });
   html += '</div>';
