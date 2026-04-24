@@ -225,78 +225,7 @@ body{background:var(--black);color:var(--white);font-family:'DM Sans',sans-serif
 
 <div class="tab-pane active" id="tab-daily">
 <div class="wrapper">
-
-  <div class="reveal" id="dailyShiftDateDisplay"></div>
-
-  <div class="reveal">
-    <div class="metric-2col">
-      <div>
-        <div class="section-header">
-          <div class="section-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
-          <div class="section-title-wrap">
-            <div class="section-title">Delivery Quality</div>
-          </div>
-        </div>
-        <div class="metric-list" id="qualityList"></div>
-      </div>
-      <div>
-        <div class="section-header">
-          <div class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-          <div class="section-title-wrap">
-            <div class="section-title">Delivery Speed</div>
-          </div>
-        </div>
-        <div class="metric-list" id="speedList"></div>
-        <div id="sphAlert"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="reveal">
-    <div class="section-header">
-      <div class="section-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-      <div class="section-title-wrap">
-        <div class="section-title">Driving Safety</div>
-      </div>
-      <div class="section-line"></div>
-    </div>
-    <div class="metric-list" id="safetyList"></div>
-  </div>
-
-  <div class="reveal">
-    <div class="metric-2col">
-      <div>
-        <div class="section-header">
-          <div class="section-icon"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div>
-          <div class="section-title-wrap">
-            <div class="section-title">DSB</div>
-          </div>
-        </div>
-        <div class="metric-list" id="dsbList"></div>
-      </div>
-      <div>
-        <div class="section-header">
-          <div class="section-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-          <div class="section-title-wrap">
-            <div class="section-title">CDF</div>
-          </div>
-        </div>
-        <div class="metric-list" id="cdfList"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="reveal focus-area" id="dailyFocusArea" style="display:none;">
-    <div class="section-header">
-      <div class="section-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-      <div class="section-title-wrap">
-        <div class="section-title">Focus Area & Guidance</div>
-      </div>
-      <div class="section-line"></div>
-    </div>
-    <div id="dailyFocusCards"></div>
-  </div>
-
+  <div class="reveal" id="dailyContent"></div>
 </div>
 </div>
 
@@ -389,19 +318,13 @@ function loadData(driver) {
 
 // ── DAILY RENDER ─────────────────────────────────────────────
 function renderDaily(d) {
+  var el = document.getElementById('dailyContent');
+
   if (!d.dcr && !d.pod && !d.sph) {
     document.getElementById('noDataBanner').style.display = 'block';
   }
-  
-  // Render Date Banner
-  var displayDate = d.date ? formatDisplayDate(d.date) : 'NO RECENT SHIFT FOUND';
-  document.getElementById('dailyShiftDateDisplay').innerHTML = 
-    '<div style="background:rgba(0,212,255,0.04); border:1px solid var(--gold-bd); border-radius:6px; padding:12px 16px; display:flex; align-items:center; gap:14px; margin-top:24px; margin-bottom:12px;">' +
-    '<div style="color:var(--gold); display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>' +
-    '<div><div style="font-family:\'DM Mono\',monospace; font-size:9.5px; letter-spacing:0.18em; color:var(--gold); text-transform:uppercase; margin-bottom:2px;">Shift Data Displayed</div>' +
-    '<div style="font-family:\'Bebas Neue\',sans-serif; font-size:18px; letter-spacing:0.04em; color:var(--white); line-height:1;">' + displayDate + '</div></div>' +
-    '</div>';
 
+  // Update hero ring
   if (d.overall != null) {
     document.getElementById('heroScoreRow').style.display = 'grid';
     var score = parseFloat(d.overall);
@@ -416,28 +339,44 @@ function renderDaily(d) {
     }
   }
 
-  buildList('qualityList', [
-    { name:'POD', sub:'Photo on Delivery', val:d.pod, fmt:'pct', thresholds:[99.5,95] },
-    { name:'DCR', sub:'Delivery Completion Rate', val:d.dcr, fmt:'pct', thresholds:[99.5,95] },
-  ], false);
+  var html = '';
 
-  buildList('speedList', [
-    { name:'Stops Per Hour', sub:'SPH', val:d.sph, fmt:'dec', thresholds:[20,18], dir:'high' },
-    { name:'Total Stops', sub:'Completed', val:d.stops, fmt:'num', neutral:true },
-    { name:'Total Packages', sub:'Delivered', val:d.pkgs, fmt:'num', neutral:true },
-  ], false);
+  // Date banner
+  var displayDate = d.date ? formatDisplayDate(d.date) : 'NO RECENT SHIFT FOUND';
+  html += '<div style="background:rgba(0,212,255,0.04);border:1px solid var(--gold-bd);border-radius:6px;padding:12px 16px;display:flex;align-items:center;gap:14px;margin-top:24px;margin-bottom:12px;">' +
+    '<div style="color:var(--gold);display:flex;"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></div>' +
+    '<div><div style="font-family:\'DM Mono\',monospace;font-size:9.5px;letter-spacing:0.18em;color:var(--gold);text-transform:uppercase;margin-bottom:2px;">Shift Data Displayed</div>' +
+    '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;letter-spacing:0.04em;color:var(--white);line-height:1;">' + displayDate + '</div></div></div>';
 
+  // Quality + Speed
+  html += '<div class="metric-2col">';
+  html += '<div>' + sectionHeader('Delivery Quality', '<polyline points="20 6 9 17 4 12"/>') +
+    buildListHtml([
+      { name:'POD', sub:'Photo on Delivery', val:d.pod, fmt:'pct', thresholds:[99.5,95] },
+      { name:'DCR', sub:'Delivery Completion Rate', val:d.dcr, fmt:'pct', thresholds:[99.5,95] },
+    ], false) + '</div>';
+
+  var sphAlertHtml = '';
   if (d.sph != null) {
     var s = parseFloat(d.sph);
     if (s < 20) {
       var diff = ((20 - s) / 20 * 100).toFixed(1);
-      document.getElementById('sphAlert').innerHTML = '<div class="metric-alert" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Below minimum of 20 SPH by ' + diff + '%</div>';
+      sphAlertHtml = '<div class="metric-alert" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Below minimum of 20 SPH by ' + diff + '%</div>';
     } else {
-      document.getElementById('sphAlert').innerHTML = '<div class="metric-alert good" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Meeting SPH minimum</div>';
+      sphAlertHtml = '<div class="metric-alert good" style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Meeting SPH minimum</div>';
     }
   }
+  html += '<div>' + sectionHeader('Delivery Speed', '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>') +
+    buildListHtml([
+      { name:'Stops Per Hour', sub:'SPH', val:d.sph, fmt:'dec', thresholds:[20,18], dir:'high' },
+      { name:'Total Stops', sub:'Completed', val:d.stops, fmt:'num', neutral:true },
+      { name:'Total Packages', sub:'Delivered', val:d.pkgs, fmt:'num', neutral:true },
+    ], false) + sphAlertHtml + '</div>';
+  html += '</div>';
 
-  buildList('safetyList', [
+  // Safety
+  html += sectionHeader('Driving Safety', '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', true);
+  html += buildListHtml([
     { name:'Seatbelt-Off Rate', val:d.seatbelt, fmt:'dec', zero:true },
     { name:'Speeding Event Rate', val:d.speeding, fmt:'dec', zero:true },
     { name:'Distractions Rate', val:d.distractions, fmt:'dec', zero:true },
@@ -445,26 +384,36 @@ function renderDaily(d) {
     { name:'Sign / Signal Violations Rate', val:d.signViolations, fmt:'dec', zero:true },
   ], true, 'No Issues Recorded', 'Thank you for driving safely.');
 
-  buildList('dsbList', [
-    { name:'Simultaneous Deliveries', val:d.simultaneous, fmt:'dec', zero:true },
-    { name:'Delivered > 50m', val:d.delivered50m, fmt:'dec', zero:true },
-    { name:'Incorrect Scan (Attended)', val:d.incorrectAttended, fmt:'dec', zero:true },
-    { name:'Incorrect Scan (Unattended)', val:d.incorrectUnattended, fmt:'dec', zero:true },
-    { name:'No POD on Delivery', val:d.noPod, fmt:'dec', zero:true },
-    { name:'Scanned Not Delivered', val:d.scannedNotDelivered, fmt:'dec', zero:true },
-  ], true, 'No Issues Recorded', 'Thank you for doing everything to cover yourself and verifying every stop. Keep it up!');
+  // DSB + CDF
+  html += '<div class="metric-2col">';
+  html += '<div>' + sectionHeader('DSB', '<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>') +
+    buildListHtml([
+      { name:'Simultaneous Deliveries', val:d.simultaneous, fmt:'dec', zero:true },
+      { name:'Delivered > 50m', val:d.delivered50m, fmt:'dec', zero:true },
+      { name:'Incorrect Scan (Attended)', val:d.incorrectAttended, fmt:'dec', zero:true },
+      { name:'Incorrect Scan (Unattended)', val:d.incorrectUnattended, fmt:'dec', zero:true },
+      { name:'No POD on Delivery', val:d.noPod, fmt:'dec', zero:true },
+      { name:'Scanned Not Delivered', val:d.scannedNotDelivered, fmt:'dec', zero:true },
+    ], true, 'No Issues Recorded', 'Thank you for doing everything to cover yourself and verifying every stop. Keep it up!') + '</div>';
+  html += '<div>' + sectionHeader('CDF', '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>') +
+    buildListHtml([
+      { name:'Mishandled Package', val:d.mishandled, fmt:'dec', zero:true },
+      { name:'Unprofessional', val:d.unprofessional, fmt:'dec', zero:true },
+      { name:'Did Not Follow Instructions', val:d.noFollowInstructions, fmt:'dec', zero:true },
+      { name:'Wrong Address', val:d.wrongAddress, fmt:'dec', zero:true },
+      { name:'Never Received Delivery', val:d.neverReceived, fmt:'dec', zero:true },
+      { name:'Received Wrong Item', val:d.wrongItem, fmt:'dec', zero:true },
+    ], true, 'No Issues Recorded', 'Thank you for ensuring the customer has a great experience.') + '</div>';
+  html += '</div>';
 
-  buildList('cdfList', [
-    { name:'Mishandled Package', val:d.mishandled, fmt:'dec', zero:true },
-    { name:'Unprofessional', val:d.unprofessional, fmt:'dec', zero:true },
-    { name:'Did Not Follow Instructions', val:d.noFollowInstructions, fmt:'dec', zero:true },
-    { name:'Wrong Address', val:d.wrongAddress, fmt:'dec', zero:true },
-    { name:'Never Received Delivery', val:d.neverReceived, fmt:'dec', zero:true },
-    { name:'Received Wrong Item', val:d.wrongItem, fmt:'dec', zero:true },
-  ], true, 'No Issues Recorded', 'Thank you for ensuring the customer has a great experience.');
+  // Focus area
+  html += '<div class="focus-area" id="dailyFocusArea" style="display:none;">' +
+    sectionHeader('Focus Area & Guidance', '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>', true) +
+    '<div id="dailyFocusCards"></div></div>';
 
-  // Render Focus Cards into Daily tab
+  el.innerHTML = html;
   renderFocus(d, 'dailyFocusArea', 'dailyFocusCards');
+  reObserve();
 }
 
 // ── WEEKLY RENDER ─────────────────────────────────────────────
@@ -906,10 +855,8 @@ function renderFocus(d, areaId, cardsId) {
 }
 
 function setAllEmpty(msg) {
-  ['qualityList','speedList','safetyList','dsbList','cdfList'].forEach(function(id){
-    document.getElementById(id).innerHTML =
-      '<div class="metric-row" style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:10px;">'+esc(msg)+'</div>';
-  });
+  var el = document.getElementById('dailyContent');
+  if (el) el.innerHTML = '<div class="metric-row" style="color:var(--muted);font-family:\'DM Mono\',monospace;font-size:10px;margin-top:24px;">'+esc(msg)+'</div>';
 }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
