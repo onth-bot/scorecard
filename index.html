@@ -614,8 +614,8 @@ function renderYearly(y) {
     (y.rank != null && y.total != null ? '<div style="margin-top:8px;font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);">RANKED <span style="color:var(--gold);font-size:13px;">' + y.rank + '</span> OUT OF <span style="color:var(--gold);font-size:13px;">' + y.total + '</span> DRIVERS</div>' : '') +
     '</div></div>';
 
-  // Per-metric rank cards — overall removed, rank is hero
   var mr = y.metricRanks || {};
+  var metricTotal = null;
   var metricCardDefs = [
     { key:'dcr',     label:'DCR',      val:y.dcr,       fmt:'pct', dir:'high' },
     { key:'pod',     label:'POD',      val:y.pod,       fmt:'pct', dir:'high' },
@@ -623,11 +623,18 @@ function renderYearly(y) {
     { key:'cdfDpmo', label:'CDF DPMO', val:y.cdfDpmo,   fmt:'dec', dir:'low'  },
     { key:'dsb',     label:'DSB DPMO', val:y.dsb,       fmt:'dec', dir:'low'  }
   ];
+  // Get total from first available metric
+  metricCardDefs.forEach(function(mc) {
+    if (!metricTotal && mr[mc.key]) metricTotal = mr[mc.key].total;
+  });
+
   html += '<div style="display:flex;align-items:center;gap:12px;margin:20px 0 12px;">' +
-    '<div style="width:32px;height:32px;flex-shrink:0;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:4px;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M8 14l-4 6h16l-4-6"/></svg></div>' +
+    '<div style="width:32px;height:32px;flex-shrink:0;background:var(--gold-bg);border:1px solid var(--gold-bd);border-radius:4px;display:flex;align-items:center;justify-content:center;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg></div>' +
     '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:clamp(22px,5vw,34px);line-height:1;letter-spacing:0.03em;color:var(--white);">2026 Season Rank by Metric</div>' +
+    (metricTotal ? '<div style="font-family:\'DM Mono\',monospace;font-size:9px;letter-spacing:0.15em;color:var(--muted);white-space:nowrap;">· ' + metricTotal + ' DRIVERS</div>' : '') +
     '<div style="flex:1;height:1px;background:var(--border);"></div>' +
     '</div>';
+
   html += '<div class="metric-rank-grid">';
   metricCardDefs.forEach(function(mc) {
     var rankInfo = mr[mc.key];
@@ -636,9 +643,7 @@ function renderYearly(y) {
     var pct = (rank != null && total != null) ? rank / total : null;
 
     var borderColor = 'var(--border)';
-    if (pct != null) {
-      borderColor = pct <= 0.33 ? 'var(--green)' : pct <= 0.66 ? 'var(--amber)' : 'var(--red)';
-    }
+    if (pct != null) borderColor = pct <= 0.33 ? 'var(--green)' : pct <= 0.66 ? 'var(--amber)' : 'var(--red)';
     var rankNumColor = borderColor;
 
     var valDisplay = '—';
@@ -648,12 +653,12 @@ function renderYearly(y) {
     }
 
     var rankDisplay = rank != null ? ('#' + rank) : '—';
-    var outOfDisplay = total != null ? ('out of ' + total) : '';
 
     html += '<div style="background:var(--card);border:1px solid ' + borderColor + ';border-left:3px solid ' + borderColor + ';border-radius:6px;padding:14px 16px;">' +
       '<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--white);font-weight:600;margin-bottom:8px;">' + mc.label + '</div>' +
-      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:32px;color:' + rankNumColor + ';line-height:1;letter-spacing:0.02em;">' + rankDisplay + '</div>' +
-      '<div style="font-family:\'DM Mono\',monospace;font-size:9px;color:var(--muted);letter-spacing:0.1em;margin-bottom:10px;">' + outOfDisplay + '</div>' +
+      '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:' + rankNumColor + ';line-height:1;letter-spacing:0.02em;">' + rankDisplay + '</div>' +
+      '<div style="height:10px;"></div>' +
+      '<div style="font-family:\'DM Mono\',monospace;font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Avg</div>' +
       '<div style="font-family:\'Bebas Neue\',sans-serif;font-size:20px;color:var(--white);letter-spacing:0.04em;line-height:1;">' + valDisplay + '</div>' +
       '</div>';
   });
